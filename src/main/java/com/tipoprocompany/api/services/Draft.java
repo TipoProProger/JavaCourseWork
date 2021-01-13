@@ -1,4 +1,4 @@
-package com.tipoprocompany.api;
+package com.tipoprocompany.api.services;
 
 import com.tipoprocompany.api.entity.Okopf;
 import io.quarkus.panache.common.Sort;
