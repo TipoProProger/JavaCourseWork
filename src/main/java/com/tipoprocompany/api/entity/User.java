@@ -1,5 +1,6 @@
 package com.tipoprocompany.api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import java.util.Collection;
 import javax.persistence.Column;
@@ -18,7 +19,7 @@ import javax.persistence.Table;
 @Table(name = "USERS")
 public class User extends PanacheEntity {
 
-    @Column
+    @Column(nullable = false)
     public String FIO;
 
     @Column
@@ -30,14 +31,16 @@ public class User extends PanacheEntity {
     @Column
     public String post;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     public Role role;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonIgnore
     public Collection<Advertisement> advertisements;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonIgnore
     public Collection<Approvement> approvements;
 
     public User() {

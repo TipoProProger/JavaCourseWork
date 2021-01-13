@@ -1,5 +1,6 @@
 package com.tipoprocompany.api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import java.util.Date;
 import javax.persistence.Column;
@@ -17,25 +18,26 @@ import javax.persistence.Table;
 @Entity
 @Table (name = "APPROVEMENT")
 public class Approvement extends PanacheEntity{
-    @Column
+    @Column(nullable = false)
     public String number;
     
     @Column
     public Date date;
     
-    @Column
-    public byte info;
+    @Column(nullable = false)
+    public Integer info;
     
     @Column
-    public byte scanTaxsApr;
+    public Integer scanTaxsApr;
     
     @Column
-    public byte scanCourtApr;
+    public Integer scanCourtApr;
     
-    @ManyToOne (optional = false)
+    @ManyToOne (optional = false, fetch=FetchType.EAGER)
     @JoinColumn(name = "user_id")
     public User user;
     
-    @OneToOne(mappedBy="approvement", fetch=FetchType.LAZY)
+    @OneToOne(mappedBy="approvement", fetch=FetchType.EAGER)
+    @JsonIgnore
     public Business business;
 }

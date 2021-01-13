@@ -1,5 +1,6 @@
 package com.tipoprocompany.api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import java.util.Collection;
 import javax.persistence.Column;
@@ -24,6 +25,7 @@ public class Okopf extends PanacheEntity {
     public String name;
 
     @OneToMany (mappedBy = "okopfDict", fetch=FetchType.LAZY)
+    @JsonIgnore
     public Collection<Business> business;
     
     public Okopf() {

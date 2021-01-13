@@ -1,5 +1,6 @@
 package com.tipoprocompany.api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import java.util.Collection;
 import javax.persistence.Column;
@@ -16,13 +17,14 @@ import javax.persistence.Table;
 @Table(name = "ROLE")
 public class Role extends PanacheEntity {
 
-    @Column
+    @Column(nullable = false)
     public String sysName;
 
-    @Column
+    @Column(nullable = false)
     public String name;
 
     @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
+    @JsonIgnore
     public Collection<RolePossibilities> rolePossibilities;
 
     public Role() {

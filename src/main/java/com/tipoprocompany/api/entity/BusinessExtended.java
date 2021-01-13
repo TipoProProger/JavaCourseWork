@@ -1,10 +1,12 @@
 package com.tipoprocompany.api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import java.sql.Blob;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -27,7 +29,7 @@ public class BusinessExtended extends PanacheEntity {
     public String adress;
 
     @Column
-    public double authorizedCapital;
+    public Double authorizedCapital;
 
     @Column
     public String kpp;
@@ -45,7 +47,7 @@ public class BusinessExtended extends PanacheEntity {
     public String director;
 
     @Column
-    public int amountWorkers;
+    public Integer amountWorkers;
 
     @Column
     public String mainActivity;
@@ -57,10 +59,10 @@ public class BusinessExtended extends PanacheEntity {
     public String Founders;
 
     @Column
-    public double taxes;
+    public Double taxes;
 
     @Column
-    public double profit;
+    public Double profit;
 
     @Column
     public Blob scanTaxes;
@@ -68,8 +70,9 @@ public class BusinessExtended extends PanacheEntity {
     @Column
     public Blob scanCourt;
 
-    @OneToOne (optional = false)
+    @OneToOne (optional = false, fetch=FetchType.EAGER)
     @JoinColumn (name = "business_id")
+    @JsonIgnore
     public Business business;
     
     public BusinessExtended() {
