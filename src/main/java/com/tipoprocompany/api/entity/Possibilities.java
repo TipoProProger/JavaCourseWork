@@ -19,7 +19,6 @@ public class Possibilities extends PanacheEntity {
 
     @Column(nullable = false)
     public String sysName;
-
     @Column(nullable = false)
     public String name;
 

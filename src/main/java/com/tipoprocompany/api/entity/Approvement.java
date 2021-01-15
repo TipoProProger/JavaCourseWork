@@ -18,18 +18,15 @@ import javax.persistence.Table;
 @Entity
 @Table (name = "APPROVEMENT")
 public class Approvement extends PanacheEntity{
+    
     @Column(nullable = false)
     public String number;
-    
     @Column
-    public Date date;
-    
+    public Date date;    
     @Column(nullable = false)
-    public Integer info;
-    
+    public String info;    
     @Column
-    public Integer scanTaxsApr;
-    
+    public Integer scanTaxsApr;    
     @Column
     public Integer scanCourtApr;
     
@@ -40,4 +37,9 @@ public class Approvement extends PanacheEntity{
     @OneToOne(mappedBy="approvement", fetch=FetchType.EAGER)
     @JsonIgnore
     public Business business;
+
+    public Approvement() {
+    }
+    
+    
 }

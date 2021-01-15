@@ -1,22 +1,27 @@
 package com.tipoprocompany.api.dto;
 
-import com.tipoprocompany.api.entity.Advertisement;
-import com.tipoprocompany.api.entity.Approvement;
-import com.tipoprocompany.api.entity.Role;
-import java.util.Collection;
-
 /**
  *
  * @author michael
  */
 public class UserDTO {
 
+    private Long id;
+
     private String FIO;
-    private String telephoneNumber;
+    private String telephone;
     private String email;
     private String post;
-    private Role role;
-    private Collection<Advertisement> advertisements;
+
+    private Long roleId;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getFIO() {
         return FIO;
@@ -26,12 +31,12 @@ public class UserDTO {
         this.FIO = FIO;
     }
 
-    public String getTelephoneNumber() {
-        return telephoneNumber;
+    public String getTelephone() {
+        return telephone;
     }
 
-    public void setTelephoneNumber(String telephoneNumber) {
-        this.telephoneNumber = telephoneNumber;
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
     }
 
     public String getEmail() {
@@ -50,32 +55,15 @@ public class UserDTO {
         this.post = post;
     }
 
-    public Role getRole() {
-        return role;
+    public Long getRoleId() {
+        return roleId;
     }
 
-    public void setRole(Role role) {
-        this.role = role;
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
     }
 
-    public Collection<Advertisement> getAdvertisements() {
-        return advertisements;
-    }
-
-    public void setAdvertisements(Collection<Advertisement> advertisements) {
-        this.advertisements = advertisements;
-    }
-
-    public Collection<Approvement> getApprovements() {
-        return approvements;
-    }
-
-    public void setApprovements(Collection<Approvement> approvements) {
-        this.approvements = approvements;
-    }
-    private Collection<Approvement> approvements;
-
-    private UserDTO() {
+    public UserDTO() {
     }
 
 }

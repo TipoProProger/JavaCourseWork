@@ -21,52 +21,36 @@ public class BusinessExtended extends PanacheEntity {
 
     @Column
     public String telephone;
-
     @Column
     public String site;
-
     @Column
     public String adress;
-
     @Column
     public Double authorizedCapital;
-
     @Column
     public String kpp;
-
     @Column
     public String okpo;
-
     @Column
     public String oktmo;
-
     @Column
     public Date regDate;
-
     @Column
     public String director;
-
     @Column
     public Integer amountWorkers;
-
     @Column
     public String mainActivity;
-
     @Column
     public String taxAgency;
-
     @Column
     public String Founders;
-
     @Column
     public Double taxes;
-
     @Column
     public Double profit;
-
     @Column
     public Blob scanTaxes;
-
     @Column
     public Blob scanCourt;
 

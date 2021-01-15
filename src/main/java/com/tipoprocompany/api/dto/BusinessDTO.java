@@ -1,42 +1,167 @@
 package com.tipoprocompany.api.dto;
 
-import java.util.Collection;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.sql.Blob;
+import java.util.Date;
 
 /**
  *
  * @author michael
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BusinessDTO {
+    
+    private Long id;
+    
+    private String shortName;
+    private String fullName;
+    private Double cost;
+    private String busEmail;
+    private String okopf;
+    private String okfs;
+    private String inn;
+    private String ogrn;
+    private String okato;
+    private Double taxDebt;
+    private Integer courtCases;
+        
+    private String okopfName;
+    private String okfsName;
+    
+    private ApprovementDTO approvement;
+    
+    private BusinessExtendedDTO businessExtended;  
 
-    public String shortName;
+    public BusinessDTO() {
+    }
 
-    public String fullName;
+    public Long getId() {
+        return id;
+    }
 
-    public Double cost;
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String busEmail;
+    public String getShortName() {
+        return shortName;
+    }
 
-    public String okopf;
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
+    }
 
-    public String okfs;
+    public String getFullName() {
+        return fullName;
+    }
 
-    public String inn;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
 
-    public String ogrn;
+    public Double getCost() {
+        return cost;
+    }
 
-    public String okato;
+    public void setCost(Double cost) {
+        this.cost = cost;
+    }
 
-    public Double taxDebt;
+    public String getBusEmail() {
+        return busEmail;
+    }
 
-    public Integer courtCases;
+    public void setBusEmail(String busEmail) {
+        this.busEmail = busEmail;
+    }
 
-    public Collection<AdvertisementDTO> advertisements;
+    public String getOkopf() {
+        return okopf;
+    }
 
-    public BusinessExtendedDTO businessExtended;
+    public void setOkopf(String okopf) {
+        this.okopf = okopf;
+    }
 
-    public ApprovementDTO approvement;
+    public String getOkfs() {
+        return okfs;
+    }
 
-    public OkopfDTO okopfDict;
+    public void setOkfs(String okfs) {
+        this.okfs = okfs;
+    }
 
-    public OkfsDTO okfsDict;
+    public String getInn() {
+        return inn;
+    }
+
+    public void setInn(String inn) {
+        this.inn = inn;
+    }
+
+    public String getOgrn() {
+        return ogrn;
+    }
+
+    public void setOgrn(String ogrn) {
+        this.ogrn = ogrn;
+    }
+
+    public String getOkato() {
+        return okato;
+    }
+
+    public void setOkato(String okato) {
+        this.okato = okato;
+    }
+
+    public Double getTaxDebt() {
+        return taxDebt;
+    }
+
+    public void setTaxDebt(Double taxDebt) {
+        this.taxDebt = taxDebt;
+    }
+
+    public Integer getCourtCases() {
+        return courtCases;
+    }
+
+    public void setCourtCases(Integer courtCases) {
+        this.courtCases = courtCases;
+    }
+
+    public String getOkopfName() {
+        return okopfName;
+    }
+
+    public void setOkopfName(String okopfName) {
+        this.okopfName = okopfName;
+    }
+
+    public String getOkfsName() {
+        return okfsName;
+    }
+
+    public void setOkfsName(String okfsName) {
+        this.okfsName = okfsName;
+    }
+
+    public ApprovementDTO getApprovement() {
+        return approvement;
+    }
+
+    public void setApprovement(ApprovementDTO approvement) {
+        this.approvement = approvement;
+    }
+
+    public BusinessExtendedDTO getBusinessExtended() {
+        return businessExtended;
+    }
+
+    public void setBusinessExtended(BusinessExtendedDTO businessExtended) {
+        this.businessExtended = businessExtended;
+    }
+    
+    
 }

@@ -18,7 +18,6 @@ public class RolePossibilities extends PanacheEntity {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "possibilities_id")
     public Possibilities possibilities;
-
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     public Role role;

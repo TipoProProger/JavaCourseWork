@@ -22,44 +22,34 @@ public class Business extends PanacheEntity {
 
     @Column(nullable = false)
     public String shortName;
-
     @Column(nullable = false)
     public String fullName;
-
     @Column(nullable = false)
     public Double cost;
-
     @Column(nullable = false)
     public String busEmail;
-
     @Column(nullable = false)
     public String okopf;
-
     @Column(nullable = false)
     public String okfs;
-
     @Column(nullable = false)
     public String inn;
-
     @Column(nullable = false)
     public String ogrn;
-
     @Column(nullable = false)
     public String okato;
-
     @Column(nullable = false)
     public Double taxDebt;
-
     @Column(nullable = false)
     public Integer courtCases;
-
-    @OneToMany(mappedBy = "business", fetch=FetchType.LAZY)
+    
+    @OneToOne(mappedBy = "business", fetch=FetchType.EAGER)
     @JsonIgnore
-    public Collection<Advertisement> advertisements;
-
+    public Advertisement advertisement;
+    
     @OneToOne(mappedBy = "business", fetch=FetchType.EAGER)
     public BusinessExtended businessExtended;
-
+    
     @OneToOne(optional = false, fetch=FetchType.EAGER)
     public Approvement approvement;
 
