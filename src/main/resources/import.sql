@@ -19,4 +19,4 @@ INSERT INTO BUSINESS(id, shortname, fullname, cost, busemail, okopf, okfs, inn, 
 
 INSERT INTO BUSINESS_EXTENDED(id, telephone, business_id) VALUES(nextval('hibernate_sequence'), 'fucking number', 12);
 
-INSERT INTO advertisement(id, status, likes, dislikes, user_id, business_id) VALUES (nextval('hibernate_sequence'), 'not ok', 1, 1, 9, 12);
+INSERT INTO advertisement(id, status, likes, dislikes, placeDate, user_id, business_id) VALUES (nextval('hibernate_sequence'), 'размещено', 1, 1, TO_DATE('17/12/2015', 'DD/MM/YYYY'), 9, 12);

@@ -31,9 +31,11 @@ public class User extends PanacheEntity {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     public Role role;
+    
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @JsonIgnore
     public Collection<Advertisement> advertisements;
+    
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @JsonIgnore
     public Collection<Approvement> approvements;
