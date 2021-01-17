@@ -2,6 +2,8 @@ package com.tipoprocompany.api.services;
 
 import com.tipoprocompany.api.entity.Role;
 import com.tipoprocompany.api.entity.User;
+import java.util.Arrays;
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -17,11 +19,13 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
  * @author michael
  */
 @ApplicationScoped
+@Path("/")
 public class UserService {
     @Inject EntityManager em;
     @Inject JsonWebToken jwt;
     
     @Transactional
+    @RolesAllowed({"simple-user","expert-user","admin-user"})
     public User getUser() {
         System.err.println(jwt);
         String email = jwt.getClaim("email");
@@ -33,6 +37,18 @@ public class UserService {
             user.email = email;
             user.post = "пользователь";
             user.telephoneNumber = "none";///FIXME
+            
+            String buffer = jwt.getClaim("user-role-name").toString();            
+            Role r = null;
+            if (buffer.contains("simple-user")) {
+                r = Role.findBySysname("simple-user");
+            } else if (buffer.contains("expert-user")) {
+                r = Role.findBySysname("expert-user");
+            } else if (buffer.contains("admin-user")) {
+                r = Role.findBySysname("admin-user");
+            }
+            
+            user.role = r;
             
             em.persist(user);
             return user;
@@ -47,25 +63,13 @@ public class UserService {
     @Path("users")
     @Produces("application/json")
     @Consumes("application/json")
+    @RolesAllowed({"simple-user", "expert-user", "admin-user"})
     public User checkUser(User user) {
-        System.err.println(user);
-        System.err.println(user.FIO);
-        System.err.println(user.email);        
-        System.err.println(user.telephoneNumber);
-        User u = User.findByEmail(user.email);
-        System.err.println(u);
+        User u = User.findByEmail(user.email);        
         if (u == null) {
             //dont exsit in out db
-            u = new User();
-            u.FIO = user.FIO;
-            u.advertisements = null;
-            u.approvements = null;
-            u.email = user.email;
-            u.post = user.post;
-            Role r = Role.findBySysname("simple_user");
-            u.telephoneNumber = user.telephoneNumber;
-
-            em.persist(u);
+            System.err.println("don't exists");
+            u = getUser();                       
         }
 
         return u;

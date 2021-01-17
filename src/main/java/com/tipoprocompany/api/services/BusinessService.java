@@ -33,10 +33,8 @@ public class BusinessService {
     @GET
     @Path("user/business/{id}")
     @Produces("application/json")
-    @RolesAllowed("simple-user")
+    @RolesAllowed({"simple-user", "expert-user", "admin-user"})    
     public Business getBusiness(@PathParam("id") Long id) {
-        System.err.println("sended");
-        //return BusinessMapping.map(Business.findById(id));
         return Business.findById(id);
     }
 
@@ -63,6 +61,7 @@ public class BusinessService {
     @Path("user/business/add")
     @Produces("application/json")
     @Consumes("application/json")
+    @RolesAllowed("simple-user")
     public Business addBusiness(Business business) {
         if (business.id == null) {
             //approvement не заполняется

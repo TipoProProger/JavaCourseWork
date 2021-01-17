@@ -40,4 +40,7 @@ public class Role extends PanacheEntity {
         return Role.find("sysname", sysname).firstResult();
     }
     
+    public static Role findByName(String name) {
+        return Role.find("name", name).firstResult();
+    }
 }

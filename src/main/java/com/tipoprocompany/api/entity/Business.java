@@ -2,13 +2,12 @@ package com.tipoprocompany.api.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
-import java.util.Collection;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -42,22 +41,22 @@ public class Business extends PanacheEntity {
     public Double taxDebt;
     @Column(nullable = false)
     public Integer courtCases;
-    
-    @OneToOne(mappedBy = "business", fetch=FetchType.EAGER)
+
+    @OneToOne(mappedBy = "business", fetch = FetchType.EAGER)
     @JsonIgnore
     public Advertisement advertisement;
-    
-    @OneToOne(mappedBy = "business", fetch=FetchType.EAGER)
+
+    @OneToOne(mappedBy = "business", fetch = FetchType.EAGER)
     public BusinessExtended businessExtended;
-    
-    @OneToOne(optional = false, fetch=FetchType.EAGER)
+
+    @OneToOne(optional = false, fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     public Approvement approvement;
 
-    @ManyToOne(optional = false, fetch=FetchType.EAGER)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "okopf_id")
     public Okopf okopfDict;
 
-    @ManyToOne(optional = false, fetch=FetchType.EAGER)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "okfs_id")
     public Okfs okfsDict;
 }
