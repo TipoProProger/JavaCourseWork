@@ -6,6 +6,8 @@ import java.util.Collection;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -18,6 +20,7 @@ import javax.persistence.Table;
 public class Role extends PanacheEntity {
 
     @Column(nullable = false)
+    @JsonIgnore
     public String sysName;
     @Column(nullable = false)
     public String name;
@@ -26,7 +29,15 @@ public class Role extends PanacheEntity {
     @JsonIgnore
     public Collection<RolePossibilities> rolePossibilities;
 
+    @OneToMany(mappedBy="role", fetch = FetchType.LAZY)
+    @JsonIgnore
+    public Collection<User> users;
+    
     public Role() {
     }
 
+    public static Role findBySysname(String sysname) {
+        return Role.find("sysname", sysname).firstResult();
+    }
+    
 }

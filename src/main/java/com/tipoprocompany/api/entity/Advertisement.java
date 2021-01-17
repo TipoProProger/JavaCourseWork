@@ -41,7 +41,15 @@ public class Advertisement extends PanacheEntity {
     public Advertisement() {
     }
 
-    public static List<Advertisement> findResolved(){
+    public static List<Advertisement> findResolved() {
         return list("status", "размещено");
+    }
+    
+    public static List<Advertisement> listUserResolved(User user) {
+        return list("user = ?1 and status = ?2", user, "размещено");
+    }
+    
+    public static Advertisement findByBusinessId(Long businessId) {
+        return find("business_id", businessId).firstResult();
     }
 }

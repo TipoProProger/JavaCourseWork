@@ -23,7 +23,7 @@ public class User extends PanacheEntity {
     public String FIO;
     @Column
     public String telephoneNumber;
-    @Column
+    @Column(nullable = false)
     public String email;
     @Column
     public String post;
@@ -43,4 +43,7 @@ public class User extends PanacheEntity {
     public User() {
     }
 
+    public static User findByEmail(String email) {
+        return User.find("email", email).firstResult();
+    }
 }
