@@ -2,7 +2,6 @@ package com.tipoprocompany.api.services;
 
 import com.tipoprocompany.api.entity.Role;
 import com.tipoprocompany.api.entity.User;
-import java.util.Arrays;
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;

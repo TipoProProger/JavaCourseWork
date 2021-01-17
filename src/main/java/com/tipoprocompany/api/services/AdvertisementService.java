@@ -21,6 +21,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Response;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 /**
@@ -258,4 +259,16 @@ public class AdvertisementService {
         return Advertisement.findResolved();
     }
 
+    @Transactional
+    @POST
+    @Path("user/finish/advertisement/{id}")
+    @Produces("application/json")
+    @RolesAllowed("simple-user")
+    public Response finishAdvertisement(@PathParam("id") Long id) {
+        Advertisement advertisement = Advertisement.findByBusinessId(id);
+        
+        advertisement.status = APPROVEMENT_STATUS.FINISHED.toString();
+        
+        return Response.ok().build();
+    }
 }
