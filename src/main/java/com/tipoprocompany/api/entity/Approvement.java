@@ -16,7 +16,7 @@ import javax.persistence.Table;
  *
  * @author michael
  * @version 1.0
- * Класс подтверждения эксперта со свойствами <b>number</b> <b>date</b> <b>info</b> <b>scanTaxsApr</b> <b>scanCourtApr</b>
+ * Класс подтверждения эксперта со свойствами <b>number</b> <b>date</b> <b>info</b> <b>scanTaxsApr</b> <b>scanCourtApr</b> <b>user</b> <b>business</b>
  */
 @Entity
 @Table (name = "APPROVEMENT")
@@ -38,7 +38,9 @@ public class Approvement extends PanacheEntity{
     @Column(nullable = false)
     public Integer scanCourtApr;
     
-    /** Поле связи с таблицей пользователей. Вид связи многие к одному. Добавляет столбец user_id. */
+    /** Поле связи с таблицей пользователей. Вид связи многие к одному. Добавляет столбец user_id. 
+     * @see User
+     */
     @ManyToOne (optional = false, fetch=FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "user_id")
     public User user;
