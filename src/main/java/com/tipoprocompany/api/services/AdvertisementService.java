@@ -27,12 +27,15 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 /**
  *
  * @author michael
+ * Класс сервиса для обработки запросов связанных с объявлениями
+ * @see Advertisement
+ * @version 1.0
  */
 @ApplicationScoped
 @Path("/")
 public class AdvertisementService {
 
-    //На проверке эксперта, на модерации, размещено,отказано в размещении, завершено        
+    /** Статусы объявления. Возможные значения: <b>размещено</b> <b>на проверке эксперта</b> <b>на модерации</b> <b>завершено</b> <b>отказано в публикации</b> */        
     private enum APPROVEMENT_STATUS {
         PLACED {
             public String toString() {
@@ -61,25 +64,36 @@ public class AdvertisementService {
         }
     }
 
+    /** Менеджер для сущностей */
     @Inject
     EntityManager em;
+    /** Проверка ролей по токену */
     @Inject
     SecurityIdentity securityIdentity;
+    /** Для получения информации из jwt токена */
     @Inject
     JsonWebToken jwt;
 
+    /** Сервис пользователей */
     @Inject
     UserService userService;
 
+    /** Внутрення функция класса для добавления подтверждения эксперта по умолчанию 
+     * @return заполненное по умолчанию подтверждение эксперта 
+     * @see Approvement
+     */
     private Approvement createApprovement() {
-
         Approvement approvement = new Approvement();
+        //Получение последнего номера подтверждения эксперта
         Approvement app = Approvement.findAll(Sort.by("number").descending()).firstResult();
+        //Установка новому подтверждению следующего номера
         approvement.number = app.number + 1;
 
+        //Поиск пользователя-эксперта. Подходит любой
         Role expertRole = Role.find("sysname", "expert-user").firstResult();
         User user = User.find("role_id", expertRole.id).firstResult();
         approvement.user = user;
+        //Заполнение обязательных полей значениями по умолчанию
         approvement.info = "";
         approvement.scanCourtApr = 0;
         approvement.scanTaxsApr = 0;
@@ -87,12 +101,11 @@ public class AdvertisementService {
         return approvement;
     }
 
-    private BusinessExtended createBusinessExtended() {
-        BusinessExtended businessExtended = new BusinessExtended();
-
-        return businessExtended;
-    }
-
+    /** Endpoint обработки запроса на размещение объявления пользователем
+     * @param бизнес пользователя
+     * @return размещенное объявление
+     * @see Business
+     */
     @Transactional
     @POST
     @Path("user/advertisement/place")
@@ -100,38 +113,34 @@ public class AdvertisementService {
     @Produces("application/json")
     @RolesAllowed("simple-user")
     public Advertisement userPlaceAdvertisement(Business business) {
-        System.err.println(business);
-
+        //Проверяем существует ли уже присланный бизнес
         if (business.id == null) {
-            //need to add business first
-            System.err.println("create new");
+            //Добавляем новый бизнесс
+            
+            //Создаем пустое подтверждение эксперта
             Approvement approvement = createApprovement();
             em.persist(approvement);
-            System.err.println("approvement persisted");
             business.approvement = approvement;
 
+            //Сохраняем новый бизнес
             em.persist(business);
             System.err.println("business persisted");
 
+            //Создаем новое расширения для бизнеса
             BusinessExtended businessExtended = business.businessExtended;
             businessExtended.business = business;
             em.persist(businessExtended);
             
+            //Соединяем разные блоки
             business.businessExtended = businessExtended;
             em.persist(business);
-            System.err.println("businessExtended persisted");
-            //businessExtended.business = business;
-            //business.businessExtended = businessExtended;
         } else {
-            //записи в таблицах уже существуют. Нужно их только перезаписать
+            //Нужно проверить имеет ли пользователь право его менять!
+            //Соединяем бизнес с его расширением и фиксируем
             business.businessExtended.business = business;
             em.merge(business);
         }
 
-        System.err.println(business);
-        System.err.println(business.businessExtended.business);
-        System.err.println(business.businessExtended);
-        
         //try to find advertisement
         Advertisement advertisement = Advertisement.findByBusinessId(business.id);
         if (advertisement == null) {
@@ -157,6 +166,10 @@ public class AdvertisementService {
         return advertisement;
     }
 
+    /**
+     * @param
+     * @return 
+     */
     @Transactional
     @POST
     @Path("expert/advertisement/place")
@@ -174,7 +187,11 @@ public class AdvertisementService {
 
         return adv;
     }
-
+    
+    /**
+     * @param
+     * @return 
+     */
     @Transactional
     @POST
     @Path("user/advertisements")
@@ -186,6 +203,10 @@ public class AdvertisementService {
         return Advertisement.listUserResolved(user);
     }
 
+    /**
+     * @param
+     * @return 
+     */
     @Transactional
     @GET
     @Path("expert/advertisements")
@@ -196,6 +217,10 @@ public class AdvertisementService {
         return Advertisement.list("status", APPROVEMENT_STATUS.ON_EXPERT_CHECK.toString());
     }
 
+    /**
+     * @param
+     * @return 
+     */ 
     @Transactional
     @GET
     @Path("admin/advertisements")
@@ -206,6 +231,10 @@ public class AdvertisementService {
         return Advertisement.list("status", APPROVEMENT_STATUS.ON_MODERATOR_CHECK.toString());
     }
 
+    /**
+     * @param
+     * @return 
+     */
     @Transactional
     @GET
     @Path("admin/advertisement/{id}")
@@ -216,6 +245,10 @@ public class AdvertisementService {
         return Advertisement.findById(id);
     }
 
+    /**
+     * @param
+     * @return 
+     */
     @Transactional
     @GET
     @Path("/admin/advertisement/accept/{id}")
@@ -232,6 +265,10 @@ public class AdvertisementService {
         return adv;
     }
 
+    /**
+     * @param
+     * @return 
+     */
     @Transactional
     @GET
     @Path("/admin/advertisement/reject/{id}")
@@ -248,6 +285,10 @@ public class AdvertisementService {
         return adv;
     }
 
+    /**
+     * @param
+     * @return 
+     */
     @Transactional
     @GET
     @Path("advertisements")
@@ -259,6 +300,10 @@ public class AdvertisementService {
         return Advertisement.findResolved();
     }
 
+    /**
+     * @param
+     * @return 
+     */
     @Transactional
     @POST
     @Path("user/finish/advertisement/{id}")
