@@ -26,7 +26,6 @@ public class UserService {
     @Transactional
     @RolesAllowed({"simple-user","expert-user","admin-user"})
     public User getUser() {
-        System.err.println(jwt);
         String email = jwt.getClaim("email");
         User user = User.findByEmail(email);
         if (user == null) {

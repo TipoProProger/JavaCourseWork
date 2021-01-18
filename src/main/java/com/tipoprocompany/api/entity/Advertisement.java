@@ -1,6 +1,5 @@
 package com.tipoprocompany.api.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import java.util.Date;
 import java.util.List;
@@ -11,7 +10,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.ws.rs.core.Response.Status;
 
 /**
  *
