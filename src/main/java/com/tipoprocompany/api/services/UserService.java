@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
+import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import org.eclipse.microprofile.jwt.JsonWebToken;
@@ -16,6 +16,8 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 /**
  *
  * @author michael
+ * @version 1.0
+ * Класс сервиса пользователей
  */
 @ApplicationScoped
 @Path("/")
@@ -23,20 +25,25 @@ public class UserService {
     @Inject EntityManager em;
     @Inject JsonWebToken jwt;
     
+    /** Получает пользователя из токена. Если его еще нет в базе, то добавляет
+     * @return пользователь, согласно токену
+     */
     @Transactional
     @RolesAllowed({"simple-user","expert-user","admin-user"})
     public User getUser() {
+        //email также уникальное поле. Получим его из токена
         String email = jwt.getClaim("email");
-        User user = User.findByEmail(email);
+        User user = User.findByEmail(email);        
         if (user == null) {
-            //should create new
+            //Если пользователя еще нет, то создадим его
             user = new User();
             user.FIO = jwt.getClaim("familyName") + " " + jwt.getClaim("givenName");
             user.email = email;
             user.post = "пользователь";
-            user.telephoneNumber = "none";///FIXME
+            user.telephoneNumber = "none";///FIXME не добавлен в keycloak
             
-            String buffer = jwt.getClaim("user-role-name").toString();            
+            String buffer = jwt.getClaim("user-role-name").toString();
+            //Поиск роли пользователя
             Role r = null;
             if (buffer.contains("simple-user")) {
                 r = Role.findBySysname("simple-user");
@@ -51,25 +58,21 @@ public class UserService {
             em.persist(user);
             return user;
         } else {
-            //already exists
+            //если пользователь уже существует, то возвращаем его
             return user;
         }        
     }
     
+    /** ВОзвращает пользователя из базы по email     
+     * @return пользователь из базы согласно email из токена
+     */
     @Transactional
-    @POST
+    @GET
     @Path("users")
     @Produces("application/json")
     @Consumes("application/json")
     @RolesAllowed({"simple-user", "expert-user", "admin-user"})
-    public User checkUser(User user) {
-        User u = User.findByEmail(user.email);        
-        if (u == null) {
-            //dont exsit in out db
-            System.err.println("don't exists");
-            u = getUser();                       
-        }
-
-        return u;
+    public User checkUser() {
+        return getUser();
     }
 }

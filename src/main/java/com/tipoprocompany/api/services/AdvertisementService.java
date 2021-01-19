@@ -1,12 +1,9 @@
 package com.tipoprocompany.api.services;
 
 import com.tipoprocompany.api.entity.Advertisement;
-import com.tipoprocompany.api.entity.Approvement;
 import com.tipoprocompany.api.entity.Business;
-import com.tipoprocompany.api.entity.BusinessExtended;
-import com.tipoprocompany.api.entity.Role;
 import com.tipoprocompany.api.entity.User;
-import io.quarkus.panache.common.Sort;
+import com.tipoprocompany.api.utils.UtilityFunctions;
 import io.quarkus.security.identity.SecurityIdentity;
 import java.util.Date;
 import java.util.List;
@@ -21,13 +18,11 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Response;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 /**
  *
- * @author michael
- * Класс сервиса для обработки запросов связанных с объявлениями
+ * @author michael Класс сервиса для обработки запросов связанных с объявлениями
  * @see Advertisement
  * @version 1.0
  */
@@ -35,7 +30,11 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 @Path("/")
 public class AdvertisementService {
 
-    /** Статусы объявления. Возможные значения: <b>размещено</b> <b>на проверке эксперта</b> <b>на модерации</b> <b>завершено</b> <b>отказано в публикации</b> */        
+    /**
+     * Статусы объявления. Возможные значения: <b>размещено</b> <b>на проверке
+     * эксперта</b> <b>на модерации</b> <b>завершено</b> <b>отказано в
+     * публикации</b>
+     */
     private enum APPROVEMENT_STATUS {
         PLACED {
             public String toString() {
@@ -64,46 +63,36 @@ public class AdvertisementService {
         }
     }
 
-    /** Менеджер для сущностей */
+    /**
+     * Менеджер для сущностей
+     */
     @Inject
     EntityManager em;
-    /** Проверка ролей по токену */
+    /**
+     * Проверка ролей по токену
+     */
     @Inject
     SecurityIdentity securityIdentity;
-    /** Для получения информации из jwt токена */
+    /**
+     * Для получения информации из jwt токена
+     */
     @Inject
     JsonWebToken jwt;
 
-    /** Сервис пользователей */
+    /**
+     * Сервис пользователей
+     */
     @Inject
     UserService userService;
-
-    /** Внутрення функция класса для добавления подтверждения эксперта по умолчанию 
-     * @return заполненное по умолчанию подтверждение эксперта 
-     * @see Approvement
-     */
-    private Approvement createApprovement() {
-        Approvement approvement = new Approvement();
-        //Получение последнего номера подтверждения эксперта
-        Approvement app = Approvement.findAll(Sort.by("number").descending()).firstResult();
-        //Установка новому подтверждению следующего номера
-        approvement.number = app.number + 1;
-
-        //Поиск пользователя-эксперта. Подходит любой
-        Role expertRole = Role.find("sysname", "expert-user").firstResult();
-        User user = User.find("role_id", expertRole.id).firstResult();
-        approvement.user = user;
-        //Заполнение обязательных полей значениями по умолчанию
-        approvement.info = "";
-        approvement.scanCourtApr = 0;
-        approvement.scanTaxsApr = 0;
-
-        return approvement;
-    }
-
-    /** Endpoint обработки запроса на размещение объявления пользователем
+    @Inject
+    UtilityFunctions utilityFunctions;
+    @Inject
+    BusinessService businessService;
+    /**
+     * Endpoint обработки запроса на размещение объявления пользователем
+     *
      * @param бизнес пользователя
-     * @return размещенное объявление
+     * @return размещенное объявление. null - при возникновении ошибки при записи
      * @see Business
      */
     @Transactional
@@ -113,39 +102,15 @@ public class AdvertisementService {
     @Produces("application/json")
     @RolesAllowed("simple-user")
     public Advertisement userPlaceAdvertisement(Business business) {
-        //Проверяем существует ли уже присланный бизнес
-        if (business.id == null) {
-            //Добавляем новый бизнесс
-            
-            //Создаем пустое подтверждение эксперта
-            Approvement approvement = createApprovement();
-            em.persist(approvement);
-            business.approvement = approvement;
-
-            //Сохраняем новый бизнес
-            em.persist(business);
-            System.err.println("business persisted");
-
-            //Создаем новое расширения для бизнеса
-            BusinessExtended businessExtended = business.businessExtended;
-            businessExtended.business = business;
-            em.persist(businessExtended);
-            
-            //Соединяем разные блоки
-            business.businessExtended = businessExtended;
-            em.persist(business);
-        } else {
-            //Нужно проверить имеет ли пользователь право его менять!
-            //Соединяем бизнес с его расширением и фиксируем
-            business.businessExtended.business = business;
-            em.merge(business);
+        business = businessService.addBusinessTemplate(business);
+        if (business == null) {
+            System.err.println("null");
+            return null;
         }
-
         //try to find advertisement
         Advertisement advertisement = Advertisement.findByBusinessId(business.id);
         if (advertisement == null) {
-            //creatse new
-            System.err.println("create new");
+            //требуется создать новое объявление
             advertisement = new Advertisement();
             advertisement.placeDate = new Date();
             advertisement.likes = 0;
@@ -153,12 +118,12 @@ public class AdvertisementService {
             advertisement.status = APPROVEMENT_STATUS.ON_EXPERT_CHECK.toString();
             advertisement.business = business;
             advertisement.user = userService.getUser();
-            
+
             em.persist(advertisement);
         } else {
             //edit
-            System.err.println("edit");
             advertisement.status = APPROVEMENT_STATUS.ON_EXPERT_CHECK.toString();
+            advertisement.placeDate = new Date();
 
             em.merge(advertisement);
         }
@@ -166,9 +131,9 @@ public class AdvertisementService {
         return advertisement;
     }
 
-    /**
-     * @param
-     * @return 
+    /** Перезапись объявления экспертом
+     * @param business новая информация о бизнесе
+     * @return отредактированное объявления
      */
     @Transactional
     @POST
@@ -178,6 +143,12 @@ public class AdvertisementService {
     @RolesAllowed("expert-user")
     public Advertisement expertPlaceAdvertisement(Business business) {
         Advertisement adv = Advertisement.find("business", business).firstResult();
+        
+        //Нельзя редактировать уже отредактированное объявление
+        if (!adv.status.equals(APPROVEMENT_STATUS.ON_EXPERT_CHECK.toString())) {
+            return null;
+        }
+        
         adv.business = business;
         em.merge(business.approvement);
 
@@ -187,10 +158,9 @@ public class AdvertisementService {
 
         return adv;
     }
-    
-    /**
-     * @param
-     * @return 
+
+    /** Возвращает список объявлений конкртеного пользователя
+     * @return список объявлений конкртеного пользователя
      */
     @Transactional
     @POST
@@ -203,9 +173,8 @@ public class AdvertisementService {
         return Advertisement.listUserResolved(user);
     }
 
-    /**
-     * @param
-     * @return 
+    /** Возвращает список объявлений для проверки экспертом
+     * @return список объявлений со статусом "на проверке эксперта"
      */
     @Transactional
     @GET
@@ -217,10 +186,9 @@ public class AdvertisementService {
         return Advertisement.list("status", APPROVEMENT_STATUS.ON_EXPERT_CHECK.toString());
     }
 
-    /**
-     * @param
-     * @return 
-     */ 
+    /** Возвращает список объявлений для проверки модератором
+     * @return список объявлений со статусом "на модерации"
+     */
     @Transactional
     @GET
     @Path("admin/advertisements")
@@ -230,24 +198,10 @@ public class AdvertisementService {
     public List<Advertisement> getModeratorAdvertisement() {
         return Advertisement.list("status", APPROVEMENT_STATUS.ON_MODERATOR_CHECK.toString());
     }
-
-    /**
-     * @param
-     * @return 
-     */
-    @Transactional
-    @GET
-    @Path("admin/advertisement/{id}")
-    @Consumes("application/json")
-    @Produces("application/json")
-    @RolesAllowed({"simple-user", "expert-user", "admin-user"})
-    public Advertisement getAdvertisementById(@PathParam("id") Long id) {
-        return Advertisement.findById(id);
-    }
-
-    /**
-     * @param
-     * @return 
+   
+    /** Подтверждение публикации выбранного бизнеса
+     * @param id id бизнеса для изменений
+     * @return отредактированно объявление. null - при некорректной записи
      */
     @Transactional
     @GET
@@ -256,8 +210,13 @@ public class AdvertisementService {
     @Produces("application/json")
     @RolesAllowed("admin-user")
     public Advertisement acceptAdvertisement(@PathParam("id") Long businessId) {
-        System.err.println("accepted");
         Advertisement adv = Advertisement.findByBusinessId(businessId);
+        
+        //Нельзя редактировать уже отредактированное объявление
+        if (!adv.status.equals(APPROVEMENT_STATUS.ON_MODERATOR_CHECK.toString())) {
+            return null;
+        }
+        
         adv.status = APPROVEMENT_STATUS.PLACED.toString();
 
         adv.persist();
@@ -265,9 +224,9 @@ public class AdvertisementService {
         return adv;
     }
 
-    /**
-     * @param
-     * @return 
+    /** Отказ в публикации выбранного бизнеса
+     * @param id id бизнеса для изменений
+     * @return отредактированно объявление. null - при некорректной записи
      */
     @Transactional
     @GET
@@ -276,8 +235,12 @@ public class AdvertisementService {
     @Produces("application/json")
     @RolesAllowed("admin-user")
     public Advertisement rejectAdvertisement(@PathParam("id") Long businessId) {
-        System.err.println("rejected");
         Advertisement adv = Advertisement.findByBusinessId(businessId);
+        
+        //Нельзя редактировать уже отредактированное объявление
+        if (!adv.status.equals(APPROVEMENT_STATUS.ON_MODERATOR_CHECK.toString())) {
+            return null;
+        }
         adv.status = APPROVEMENT_STATUS.REJECTED.toString();
 
         adv.persist();
@@ -285,9 +248,8 @@ public class AdvertisementService {
         return adv;
     }
 
-    /**
-     * @param
-     * @return 
+    /** Возвращает список объявлений со статусом "размещено"
+     * @return список объявлений со статусом "размещено"
      */
     @Transactional
     @GET
@@ -295,25 +257,33 @@ public class AdvertisementService {
     @Produces("application/json")
     @RolesAllowed({"simple-user", "expert-user", "admin-user"})
     public List<Advertisement> getUserAdvertisement() {
-        System.err.println(jwt);
-        System.err.println(jwt.getClaim("email").toString());
         return Advertisement.findResolved();
     }
 
-    /**
-     * @param
-     * @return 
+    /** Изменение статуса объявления на "закрыто"
+     * @param id id бизнеса для закрытия
+     * @return отредактированно объявление. null - при некорректной записи
      */
     @Transactional
-    @POST
+    @GET
     @Path("user/finish/advertisement/{id}")
     @Produces("application/json")
     @RolesAllowed("simple-user")
-    public Response finishAdvertisement(@PathParam("id") Long id) {
+    public Advertisement finishAdvertisement(@PathParam("id") Long id) {
         Advertisement advertisement = Advertisement.findByBusinessId(id);
+        System.err.println(advertisement);
+        User recievedUser = userService.getUser();
+        System.err.println(recievedUser);
+        User realUser = advertisement.user;
+        System.err.println(realUser);
+        if (recievedUser.id != realUser.id) {
+            return null;
+        }
         
         advertisement.status = APPROVEMENT_STATUS.FINISHED.toString();
+
+        em.persist(advertisement);
         
-        return Response.ok().build();
+        return advertisement;
     }
 }
